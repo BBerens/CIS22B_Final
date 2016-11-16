@@ -50,7 +50,6 @@ public:
 
 	void writeToFile(fstream&);
 	friend fstream& operator << (fstream&, Book&);
-	friend ostream& operator << (ostream&, Book&);
 	friend fstream& operator >> (fstream&, Book&);
 };
 

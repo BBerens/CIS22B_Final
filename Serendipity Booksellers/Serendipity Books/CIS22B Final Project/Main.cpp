@@ -25,32 +25,31 @@ void displayBookLookup(void);
 void displayAddBook(void);
 void displayEditBook(Book *);
 void bookLookup(void);
-void displayReport(int);
 Book* displayAttributeSearch(int);
 void editBook(Book *, int);
 
-Inventory inventory;	// Declare Inventory 
+Inventory inventory;
 enum bookAttribute { ISBN, TITLE, AUTHOR, PUBLISHER, WHOLESALE_COST, RETAIL_PRICE, DATE_ADDED };
 
 
 int main(void)
 {
-	int menuOption = -1;	// declare and initialize menuOption
+	int menuOption = -1;
 	system("mode 100, 50");	// sets command prompt 100 chars wide and 50 chars tall
 
 	while (menuOption != 4)
 	{
-		displayMainMenu();	// Draws main menu and prompts user to choose module
-		cin >> menuOption;	// Get user input
+		displayMainMenu();
+		cin >> menuOption;
 		switch (menuOption)
 		{
-		case (1) :			// Cashier Module Selected
+		case (1) :
 			cashierModule();
 			break;
 		case (2) :
-			inventoryModule();	// Inventory Module Selected
+			inventoryModule();
 			break;
-		case (3) :			// Report Module Selected
+		case (3) :
 			reportModule();
 			system("pause");	//debug
 			break;
@@ -61,7 +60,7 @@ int main(void)
 			system("pause");
 		}
 	}
-	inventory.writeBooks();	// write bboks to file before exiting program
+	inventory.writeBooks();
 	return 0;
 }
 
@@ -170,16 +169,16 @@ void displayCashierScreen(Order * currentOrder)
 
 void inventoryModule(void)
 {
-	int menuOption = -1;	// initialize menuOption
-	while (menuOption != 5)	// While the user hasn't selected to exit.
+	int menuOption = -1;
+	while (menuOption != 5)
 	{
-		displayInventoryMenu();	// Draw the inventory menu and prompt user to select an option
-		cin >> menuOption;		// Get user input
-		cin.ignore();	// Not sure if this necessary..
+		displayInventoryMenu();
+		cin >> menuOption;
+		cin.ignore();
 		switch (menuOption)
 		{
 			case (1) :
-				bookLookup();	// Draw 
+				bookLookup();
 				break;
 			case (2) :
 				displayAddBook();
@@ -664,14 +663,7 @@ void displayBookInformationScreen(Book * displayBook)
 
 void reportModule(void)
 {
-	int menuOption = -1;
-	while (menuOption != 8)
-	{
-		displayReportsMenu();
-		cin >> menuOption;
-		displayReport(menuOption -1 );
-		system("pause");
-	}
+	displayReportsMenu();
 }
 void displayReportsMenu(void)
 {
@@ -684,32 +676,21 @@ void displayReportsMenu(void)
 		<< "*                                   Reports                                   *" << endl
 		<< "*                                                                             *" << endl
 		<< "*                                                                             *" << endl
-		<< "*                         1. ISBN Listing                                     *" << endl
+		<< "*                         1. Inventory Listing                                *" << endl
 		<< "*                                                                             *" << endl
-		<< "*                         2. Title Listing                                    *" << endl
+		<< "*                         2. Inventory Wholesale Value                        *" << endl
 		<< "*                                                                             *" << endl
-		<< "*                         3. Author Listing                                   *" << endl
+		<< "*                         3. Inventory Retail Value                           *" << endl
 		<< "*                                                                             *" << endl
-		<< "*                         4. Publisher Listing                                *" << endl
+		<< "*                         4. Listing by Quantity                              *" << endl
 		<< "*                                                                             *" << endl
-		<< "*                         5. Wholesale Cost Listing                           *" << endl
+		<< "*                         5. Listing by Cost                                  *" << endl
 		<< "*                                                                             *" << endl
-		<< "*                         6. Retail Price Listing                             *" << endl
+		<< "*                         5. Listing by Age                                   *" << endl
 		<< "*                                                                             *" << endl
-		<< "*                         7. Date Added Listing                               *" << endl
-		<< "*                                                                             *" << endl
-		<< "*                         8. Return to the Main Menu                          *" << endl
+		<< "*                         5. Return to the Main Menu                          *" << endl
 		<< "*                                                                             *" << endl
 		<< "*                         Enter Your Choice:                                  *" << endl
 		<< "*                                                                             *" << endl
 		<< "*******************************************************************************" << endl;
-}
-
-void displayReport(int attribute)
-{
-	Book** list = inventory.getAttributeList(attribute);
-	for (int i = 0; i < inventory.getNumBooks(); i++)
-	{
-		cout << *list[i] << endl;
-	}
 }
