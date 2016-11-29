@@ -12,15 +12,11 @@ class Inventory
 private:
 	Book* books[100];	// unsorted array, in order of when they were added
 	int numBooks;
-	Book ** authorList;
-	Book ** isbnList;
-	Book ** TitleList;
-	Book ** PublisherList;
-
+	Book ** lists[7];
 public:
 	Inventory(void);
-	~Inventory();
-	Book* addBook(long long);
+	virtual ~Inventory();
+	Book* addBook(void);
 	Book* getBook(int);	// temporary
 	Book** searchAuthor(string);
 	Book** searchTitle(string);
@@ -28,10 +24,10 @@ public:
 	Book** searchPublisher(string);
 	void writeBooks(void);
 	void readBooksFromFile(void);
-	Book** generateISBNList(void);
-	Book** getISBNList(void);
+	Book** generateAttributeList(int);
+	Book** getAttributeList(int);
 	int getNumBooks(void);
-	Book * searchISBN(long long) const;
+	Book * searchAttribute(int, string) const;
 
 };
 #endif

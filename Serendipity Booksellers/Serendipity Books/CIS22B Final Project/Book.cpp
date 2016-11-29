@@ -2,11 +2,17 @@
 #include <ctime>
 #include <fstream>
  
-Book::Book(long long value)
+Book::Book(void)
 {
-	isbn = value;
 	quantity = 0;
 	dateAdded= time(NULL);
+}
+
+Book::Book(long long isbnIn)
+{
+	isbn = isbnIn;
+	quantity = 0;
+	dateAdded = time(NULL);
 }
 
 Book::~Book()
@@ -31,6 +37,50 @@ void Book::writeToFile(fstream & file)
 	file << dateAdded << endl;
 }
 
+fstream& operator << (fstream& file, Book& outBook)
+{
+	file << outBook.isbn << ",";
+	file << outBook.title << ",";
+	file << outBook.author << ",";
+	file << outBook.publisher << ",";
+	file << outBook.wholesaleCost << ",";
+	file << outBook.retailPrice << ",";
+	file << outBook.dateAdded << endl;
+	return file;
+}
+
+fstream& operator >> (fstream& file, Book& inBook)
+{
+	long long tempIsbn;
+	string tempStr;
+	double tempDouble;
+	time_t tempDate;
+
+	getline(file, tempStr, ',');
+	if (tempStr != "")
+	{
+		tempIsbn = stoll(tempStr, nullptr, 10);
+		inBook.isbn = tempIsbn;
+		getline(file, tempStr, ',');	// messes up if there is a ',' in the title, need to choose a different char
+		inBook.title = tempStr;
+		getline(file, tempStr, ',');
+		inBook.author = tempStr;
+		getline(file, tempStr, ',');
+		inBook.publisher = tempStr;
+		getline(file, tempStr, ',');
+		tempDouble = stod(tempStr, nullptr);
+		inBook.wholesaleCost = tempDouble;
+		getline(file, tempStr, ',');
+		tempDouble = stod(tempStr, nullptr);
+		inBook.retailPrice = tempDouble;
+		getline(file, tempStr, '\n');
+		tempIsbn = stoll(tempStr, nullptr, 10);
+		tempDate = static_cast<time_t>(tempIsbn);
+		inBook.dateAdded = tempDate;
+	}
+	return file;
+}
+
 
 
 time_t Book::getDateAdded(void) const { return dateAdded; }
@@ -50,3 +100,36 @@ void Book::setWholesaleCost(double value){ wholesaleCost = value; }
 double Book::getWholesaleCost(void) const{ return wholesaleCost; }
 void Book::setRetailPrice(double value){ retailPrice = value; }
 double Book::getRetailPrice(void) const { return retailPrice; }
+
+string Book::getAttribute(int input) const
+{
+	
+	string output;
+	switch (input)
+	{
+	case (ISBN) :
+		output = to_string(isbn);
+		break;
+	case (TITLE) :
+		output = title;
+		break;
+	case (AUTHOR) :
+		output = author;
+		break;
+	case (PUBLISHER) :
+		output = publisher;
+		break;
+	case (WHOLESALE_COST) :
+		output = to_string(wholesaleCost);
+		break;
+	case (RETAIL_PRICE) :
+		output = to_string(retailPrice);
+		break;
+	case(DATE_ADDED) :
+		output = to_string(dateAdded);
+		break;
+	default :
+		output = "error";
+	}
+	return output;
+}

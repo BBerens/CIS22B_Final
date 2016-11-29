@@ -18,12 +18,13 @@ private:
 	double wholesaleCost;
 	double retailPrice;
 	time_t dateAdded;
-
+	enum bookAttribute { ISBN, TITLE, AUTHOR, PUBLISHER, WHOLESALE_COST, RETAIL_PRICE, DATE_ADDED };
 
 public:
 	static unsigned int numBooks;
-	Book(long long);	// Constructor
-	~Book();			// Destructor
+	Book();	// Default Constructor
+	Book(long long);	// Overloaded Constructor
+	virtual ~Book();			// Destructor
 
 	// Setters
 	void setIsbn(long long);
@@ -45,8 +46,11 @@ public:
 	int getQuantity(void) const;
 	double getWholesaleCost(void) const;
 	double getRetailPrice(void) const;
+	string getAttribute(int) const;
 
-	void Book::writeToFile(fstream&);
+	void writeToFile(fstream&);
+	friend fstream& operator << (fstream&, Book&);
+	friend fstream& operator >> (fstream&, Book&);
 };
 
 #endif

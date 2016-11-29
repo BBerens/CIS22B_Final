@@ -5,14 +5,15 @@
 #include "Book.h"
 #include <fstream>
 
-
-
 Inventory::Inventory(void)
 {
 	numBooks = 0;
 	readBooksFromFile();
-	isbnList = new Book*[numBooks];
-	isbnList = generateISBNList();
+	for (int i = 0; i <= 7; i++)
+	{
+		lists[i] = new Book*[numBooks];
+		lists[i] = generateAttributeList(i);
+	}
 }
 
 Inventory::~Inventory()
@@ -23,14 +24,13 @@ Inventory::~Inventory()
 	}
 }
 
-Book* Inventory::addBook(long long value)
+Book* Inventory::addBook(void)
 {
 	// when we add a new book we should generate a new dynamically allocated array of book pointers(books)
 	Book* newBook;
-	newBook = new Book(value); // temporary, need to do this with dynamic allocation
+	newBook = new Book(); // temporary, need to do this with dynamic allocation
 	books[numBooks] = newBook;
 	numBooks++;
-	isbnList = generateISBNList();
 	return newBook;
 }
 
@@ -41,36 +41,16 @@ Book* Inventory::getBook(int index)	// temporary
 
 void Inventory::readBooksFromFile()
 {
-	long long tempIsbn;
-	char tempChar[200];
-	string tempStr;
-	double tempDouble;
-	time_t tempDate;
 	Book* bookPtr;
 	fstream bookDatabase;
 
 	bookDatabase.open("BookDatabase.txt", ios::in);
-	while (getline(bookDatabase, tempStr, ','))
+
+	do
 	{
-		tempIsbn = stoll(tempStr, nullptr, 10);
-		bookPtr = addBook(tempIsbn);
-		getline(bookDatabase, tempStr, ',');	// messes up if there is a ',' in the title, need to choose a different char
-		bookPtr->setTitle(tempStr);
-		getline(bookDatabase, tempStr, ',');
-		bookPtr->setAuthor(tempStr);
-		getline(bookDatabase, tempStr, ',');
-		bookPtr->setPublisher(tempStr);
-		getline(bookDatabase, tempStr, ',');
-		tempDouble = stod(tempStr, nullptr);
-		bookPtr->setWholesaleCost(tempDouble);
-		getline(bookDatabase, tempStr, ',');
-		tempDouble = stod(tempStr, nullptr);
-		bookPtr->setRetailPrice(tempDouble);
-		getline(bookDatabase, tempStr, '\n');
-		tempIsbn = stoll(tempStr, nullptr, 10);
-		tempDate = static_cast<time_t>(tempIsbn);
-		bookPtr->setDateAdded(tempDate);
-	}
+		bookPtr = addBook();		
+	} while (bookDatabase >> *bookPtr);
+	delete books[numBooks--];
 	bookDatabase.close();
 }
 void Inventory::writeBooks()
@@ -79,22 +59,22 @@ void Inventory::writeBooks()
 	bookDatabase.open("BookDatabase.txt", ios::out);
 	for (int i = 0; i < numBooks; i++)
 	{
-		books[i]->writeToFile(bookDatabase);
+		bookDatabase << *books[i];
 	}
 	bookDatabase.close();
 
 }
 
-Book ** Inventory::generateISBNList(void)
+Book ** Inventory::generateAttributeList(int attribute)
 {
 	int lowerLimit;
 	int smallIndex;
 	Book * temp;
-	Book ** tempISBNList = nullptr;
-	tempISBNList = new Book*;
+	Book ** tempList = nullptr;
+	tempList = new Book*;
 	for (int i = 0; i < numBooks; i++)
 	{
-		tempISBNList[i] = books[i];
+		tempList[i] = books[i];
 
 	}
 	for (int i = 0; i < numBooks; i++)
@@ -103,21 +83,21 @@ Book ** Inventory::generateISBNList(void)
 		smallIndex = lowerLimit;
 		for (int j = lowerLimit; j < numBooks; j++)
 		{
-			if (tempISBNList[j]->getIsbn() < tempISBNList[smallIndex]->getIsbn())
+			if (tempList[j]->getAttribute(attribute) < tempList[smallIndex]->getAttribute(attribute))
 			{
 				smallIndex = j;
 			}
-			temp = tempISBNList[lowerLimit];
-			tempISBNList[lowerLimit] = tempISBNList[smallIndex];
-			tempISBNList[smallIndex] = temp;
+			temp = tempList[lowerLimit];
+			tempList[lowerLimit] = tempList[smallIndex];
+			tempList[smallIndex] = temp;
 		}
 	}
-	return tempISBNList;
+	return tempList;
 }
 
-Book** Inventory::getISBNList(void)
+Book** Inventory::getAttributeList(int attribute)
 {
-	return isbnList;
+	return lists[attribute];
 }
 
 int Inventory::getNumBooks(void)
@@ -125,7 +105,7 @@ int Inventory::getNumBooks(void)
 	return numBooks;
 }
 
-Book * Inventory::searchISBN(long long inputISBN) const 
+Book * Inventory::searchAttribute(int attribute, string value) const 
 {
 	int first = 0; // First array element
 	int last = numBooks - 1; // Last array element
@@ -135,18 +115,18 @@ Book * Inventory::searchISBN(long long inputISBN) const
 	while (!found && first <= last)
 	{
 		middle = (first + last) / 2; // Calculate mid point
-		if (isbnList[middle]->getIsbn() == inputISBN) // If value is found at mid
+		if (lists[attribute][middle]->getAttribute(attribute) == value) // If value is found at mid
 		{
 			found = true;
 			position = middle;
 		}
-		else if (isbnList[middle]->getIsbn() > inputISBN) // If value is in lower half
+		else if (lists[attribute][middle]->getAttribute(attribute) > value) // If value is in lower half
 			last = middle - 1;
 		else
 			first = middle + 1; // If value is in upper half
 	}
 	if (found)
-		return isbnList[position];
+		return lists[attribute][position];
 	else
 		return nullptr;
 }

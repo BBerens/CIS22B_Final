@@ -25,10 +25,11 @@ void displayBookLookup(void);
 void displayAddBook(void);
 void displayEditBook(Book *);
 void bookLookup(void);
-Book* displaySearchISBN(void);
+Book* displayAttributeSearch(int);
 void editBook(Book *, int);
 
 Inventory inventory;
+enum bookAttribute { ISBN, TITLE, AUTHOR, PUBLISHER, WHOLESALE_COST, RETAIL_PRICE, DATE_ADDED };
 
 
 int main(void)
@@ -205,12 +206,11 @@ void bookLookup(void)
 		subMenuOption = -1;
 		displayBookLookup();
 		cin >> menuOption;
-		switch (menuOption)
+		if (menuOption != 5) // Horrible. Needs to be done properly.
 		{
-		case (1) :
 			while (subMenuOption != 9)
 			{
-				foundBook = displaySearchISBN();
+				foundBook = displayAttributeSearch(menuOption - 1);
 				cin >> subMenuOption;
 				switch (subMenuOption)
 				{
@@ -240,24 +240,44 @@ void bookLookup(void)
 					break;
 				case(9) :
 					break;
-				default :
+				default:
 					;
 				}
 			}
-		case (2) :
-		case (3) :
-		case (4) :
-		case (5) :
-		default:
-			;
 		}
 	}
 }
 
-Book* displaySearchISBN(void)
+Book* displayAttributeSearch(int attribute)
 {
-	long long inputISBN;
+	string attributeStr;
+	string inputValue;
 	Book * foundBook;
+
+	switch (attribute)
+	{
+	case (ISBN) :
+		attributeStr = "ISBN";
+		break;
+	case (TITLE) :
+		attributeStr = "Title";
+		break;
+	case (AUTHOR) :
+		attributeStr = "Author";
+		break;
+	case (PUBLISHER) :
+		attributeStr = "Publisher";
+		break;
+	case (WHOLESALE_COST) :
+		attributeStr = "Wholesale Cost";
+		break;
+	case (RETAIL_PRICE) :
+		attributeStr = "Retail Price";
+		break;
+	default:
+		return nullptr;
+	}
+
 	system("cls");
 	cout << "****************************************************************************************************"
 		<< "*                                                                                                  *"
@@ -265,14 +285,14 @@ Book* displaySearchISBN(void)
 		<< "*                                                                                                  *"
 		<< "*                                      Serendipity Booksellers                                     *"
 		<< "*                                                                                                  *"
-		<< "*                                            ISBN Search                                           *"
+		<< "*                                            " << attributeStr << " Search" << endl;
+	cout << "*                                                                                                  *"
 		<< "*                                                                                                  *"
 		<< "*                                                                                                  *"
 		<< "*                                                                                                  *"
-		<< "*                                                                                                  *"
-		<< "*  Enter the ISBN to search for: ";
-	cin >> inputISBN;
-	foundBook = inventory.searchISBN(inputISBN);
+		<< "*  Enter the " << attributeStr << " to search for: ";
+	cin >> inputValue;
+	foundBook = inventory.searchAttribute(attribute, inputValue);
 	if (foundBook != nullptr)
 	{
 		cout << "****************************************************************************************************"
@@ -317,7 +337,7 @@ Book* displaySearchISBN(void)
 	else
 	{
 		cout << "****************************************************************************************************"
-			<< "  No book with that ISBN was found. Press enter to try again." << endl;
+			<< "  No book with that " << attributeStr << " was found. Press enter to try again." << endl;
 		system("pause");
 		return nullptr;
 	}
@@ -348,10 +368,10 @@ void editBook(Book * editBook, int attribute)
 	cout << "*  Title: " << editBook->getTitle() << endl;
 	cout << "*  Author: " << editBook->getAuthor() << endl;
 	cout << "*  Publisher: " << editBook->getPublisher() << endl;
-	cout << "*  Date Added: " << editBook->getDateAddedStr();
 	cout << "*  Quantity On-hand: " << setw(4) << editBook->getQuantity() << endl;
 	cout << "*  Wholesale Cost: $" << fixed << setprecision(2) << editBook->getWholesaleCost() << endl;
 	cout << "*  Retail Price: $" << fixed << setprecision(2) << editBook->getRetailPrice() << endl;
+	cout << "*  Date Added: " << editBook->getDateAddedStr();
 	cout << "*" << endl;
 	cout << "****************************************************************************************************";
 	switch (attribute)
@@ -360,7 +380,7 @@ void editBook(Book * editBook, int attribute)
 		cout << "Enter the new ISBN for this book: ";
 		cin >> tempISBN;
 		editBook->setIsbn(tempISBN);
-		inventory.generateISBNList();
+		inventory.generateAttributeList(ISBN);
 		break;
 	case (2) :
 		cout << "Enter the new Title for this book: ";
@@ -462,12 +482,12 @@ void displayBookLookup(void)
 void displayAddBook(void)
 {
 	string userInput;
-	Book * currentBook;
+	Book * currentBook = inventory.addBook();
 	system("cls");
 	cout << "Please enter the following information for adding a book: " << endl;
 	cout << "Enter the 13 digit ISBN for the book to be added or press q and press enter to quit: ";
 	getline(cin, userInput); // check for quit and follow up actions, also needs formatting
-	currentBook = inventory.addBook(strtoll(userInput.c_str(), nullptr, 10)); // doesn't perform any checks on what the user inputs. Needs to be broken up
+	currentBook->setIsbn(strtoll(userInput.c_str(), nullptr, 10)); // doesn't perform any checks on what the user inputs. Needs to be broken up
 	cout << "Enter the title of the book or press q and press enter to quit: ";
 	getline(cin, userInput); // check less than 200 chars. Or whatever the max is.
 	currentBook->setTitle(userInput);
